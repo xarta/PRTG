@@ -102,8 +102,8 @@ using System.Threading.Tasks;
  * 
  * After further research and thought, it seems prudent to make a general
  * purpose sensor, where I can pass the filename to the sensor from PRTG.
- * Assumption: the date part will always be in the same format - not
- * part of the filename. With optional time-part.
+ * Assumption: the date part will always be in the same format - YYYYMMDD
+ * at the very start of the filename. With optional time-part.
  * 
  * The file size could be returned as the "value" so can be graphed in PRTG,
  * maybe with bounds set to alert "unusual" values.
@@ -205,8 +205,10 @@ namespace BackUpsInDateNetFramework
 
             if (File.Exists($"{uncPathUri.LocalPath}/{fileName}"))
             {
-                filesize = 1; // TODO: get actual filesize in KB units
+                //filesize = 1; // TODO: get actual filesize in KB units
+                filesize = new FileInfo($"{uncPathUri.LocalPath}/{fileName}").Length.ToKB();
                 msg += $"FOUND! {DateTime.Now.ToString("h:mm tt")}";
+                returnVal = 0;
             }
             else
             {
@@ -217,6 +219,14 @@ namespace BackUpsInDateNetFramework
                 
             Console.WriteLine($"{filesize}:{msg}");
             return returnVal;
+        }
+    }
+
+    public static class MyExtensions
+    {
+        public static Int64 ToKB(this Int64 byteValue)
+        {
+            return (Int64)Math.Floor(((double)byteValue / 1024));
         }
     }
 }
