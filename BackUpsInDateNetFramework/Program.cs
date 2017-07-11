@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,6 +71,7 @@ using System.Threading.Tasks;
  * It will be used as the resulting value for this sensor 
  * (for example, bytes, milliseconds) and stored in the database. 
  * The message can be any string (maximum length: 2000 characters).
+ * "Last Msg" is at the top of the Overview screen, in PRTG, for the sensor
  * 
  * 
  * EXIT CODE of the EXE has to be one of the following values:
@@ -91,8 +95,10 @@ using System.Threading.Tasks;
  * - MySQL dump                 e.g. 20170711hmdump.sql.7z       10,858 KB
  * - 7z of eml files etc.       e.g. 20170711hmdata.7z          981,900 KB
  * 
- * I want this sensor to alert me if the last back-ups are more than 
- * 24-hours old.
+ * I want this sensor to alert me if it can't find a backup file with the
+ * current date. My back-up scripts run at 5am, so I could run this check
+ * once per day, later on.  8am maybe (don't want to be too early in the
+ * morning, but not too late either).
  * 
  * After further research and thought, it seems prudent to make a general
  * purpose sensor, where I can pass the filename to the sensor from PRTG.
@@ -103,6 +109,7 @@ using System.Threading.Tasks;
  * maybe with bounds set to alert "unusual" values.
  * 
  * So there will be 1:1 sensors:files  (3x instances of the sensor) for my 3 files.
+ * An advanced sensor could do multichannel but keeping it simple for now.
  * 
  */
 
@@ -119,9 +126,97 @@ namespace BackUpsInDateNetFramework
     {
         static int Main(string[] args)
         {
-            // testing
-            Console.WriteLine($"0:{args[0]}");
-            return 0;
+
+
+            int returnVal = 0;      // 0 = OK, 2 = ERROR
+            Int64 filesize = 0;     // in KB
+            string msg = "none";    // Use "file-found", "file-missing" etc.
+
+            if (Directory.Exists(Properties.Settings.Default.PRTGcustSenseExtra))
+            {
+                // EXPECTING:
+                // args[0] == filename
+                
+                // E.G. 3 sensors:
+
+                //      YYYYMMDD -0500HMsettings.7z     (ignore -0500)
+                //      YYYYMMDDhmdump.sql.7z     
+                //      YYYYMMDDhmdata.7z         
+
+                // args[1] == unc path for search folder e.g.       \\XWIFI02\USBDisk1_Volume1  for me
+                // ... a string for net use can be generated e.g. \\\\XWIFI02\\USBDisk1_Volume1 for me
+                // args[2] == unc net use password
+                // args[3] == unc net use username
+                
+                // e.g. for me:  \\\\XWIFI02\\USBDisk1_Volume1 $password /USER:$user
+                // TODO: look at SecureString options for this scenario - relevant?
+
+
+                // expecting filename to look for in args[0]
+                // Date placeholder: YYYYMMDD
+                // Time placeholder: -HHMM ... ignored.
+                // test/debug: check args - output to file
+                if (args.Length > 0)
+                {
+                    // WARNING: will output password to file, if included in parameters
+                    System.IO.File.WriteAllLines(Properties.Settings.Default.PRTGcustSenseExtra, args);
+                }
+                else
+                {
+                    string[] noArgs = { "No args found" };
+                    System.IO.File.WriteAllLines(Properties.Settings.Default.PRTGcustSenseExtra, noArgs);
+                }
+            }
+
+            if(args.Length < 4)
+            {
+                returnVal = 2;
+                msg = "Expected sensor parameters not found. e.g. filename, unc-path, password, username";
+                Console.WriteLine($"{filesize}:{msg}");
+                return returnVal;
+            }
+
+            string uncPath = args[1];
+            Uri uncPathUri = new Uri(uncPath);
+            string uncPathEsc = uncPath.Replace(@"\", @"\\");
+
+            try
+            {
+                Process process = new Process();
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                startInfo.FileName = "cmd.exe";
+                startInfo.Arguments = $"/C net use {uncPathEsc} {args[2]} /USER:{args[3]}";
+                process.StartInfo = startInfo;
+                Process.Start(startInfo);
+            }
+            catch (Exception)
+            {
+                returnVal = 2;
+                throw; // TODO: Custom-Outer-Throw-Message/Inner (existing) exception
+            }
+
+            // ASSUMES this sensor is looking for back-up made in same 24-hour period (earlier)
+            string today = DateTime.Now.ToString("yyyyMMdd");
+            string fileName = args[0].Replace("YYYYMMDD",today);
+            msg = $"Looking for {fileName}: ";
+
+            //TODO: wildcard for times in format -0500 (regex maybe)???
+
+            if (File.Exists($"{uncPathUri.LocalPath}/{fileName}"))
+            {
+                filesize = 1; // TODO: get actual filesize in KB units
+                msg += $"FOUND! {DateTime.Now.ToString("h:mm tt")}";
+            }
+            else
+            {
+                filesize = 0;
+                msg += $"NOT found! {DateTime.Now.ToString("h: mm tt")}";
+                returnVal = 2;
+            }
+                
+            Console.WriteLine($"{filesize}:{msg}");
+            return returnVal;
         }
     }
 }
