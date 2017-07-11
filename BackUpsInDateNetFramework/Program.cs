@@ -139,7 +139,7 @@ namespace BackUpsInDateNetFramework
                 
                 // E.G. 3 sensors:
 
-                //      YYYYMMDD -0500HMsettings.7z     (ignore -0500)
+                //      YYYYMMDD-0500HMsettings.7z     (ignore -0500)
                 //      YYYYMMDDhmdump.sql.7z     
                 //      YYYYMMDDhmdata.7z         
 
@@ -205,7 +205,6 @@ namespace BackUpsInDateNetFramework
 
             if (File.Exists($"{uncPathUri.LocalPath}/{fileName}"))
             {
-                //filesize = 1; // TODO: get actual filesize in KB units
                 filesize = new FileInfo($"{uncPathUri.LocalPath}/{fileName}").Length.ToKB();
                 msg += $"FOUND! {DateTime.Now.ToString("h:mm tt")}";
                 returnVal = 0;
