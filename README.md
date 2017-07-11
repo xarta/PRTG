@@ -78,14 +78,14 @@ Placeholder       |      Description
 
  
 "Please make sure you write the placeholders in quotes to ensure that they are 
- orking properly if their values contain blanks. Use single quotation marks ' ' 
+ working properly if their values contain blanks. Use single quotation marks ' ' 
 with PowerShell scripts, and double quotes \" \" with all others."
 
 
 #### Return Value (standard out)
  
- * Int64 value; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Value has to be a 64-bit integer or float. (Int64 == Long)
- * string message // max. 2000 characters (visible at top of Overview screen in PRTG for sensor)
+ * Int64 value; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Value has to be a 64-bit integer or float. (Int64 == Long)
+ * string message; &nbsp;// max. 2000 characters (visible at top of Overview screen in PRTG for sensor)
 
 "value" might represent bytes, milliseconds etc. and is stored in the PRTG database.
 "message" can be any string.
