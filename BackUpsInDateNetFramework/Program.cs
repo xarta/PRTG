@@ -31,11 +31,11 @@ namespace BackUpsInDateNetFramework
             Int64 filesize = 0;     // in KB
             string msg = "none";    // Use "file-found", "file-missing" etc.
 
-            if (Directory.Exists(Properties.Settings.Default.PRTGcustSenseExtra))
+            if (Directory.Exists(Properties.Settings.Default.PRTGcustSenseExtraFolder))
             {
                 // EXPECTING:
                 // args[0] == filename
-                
+
                 // E.G. 3 sensors:
 
                 //      YYYYMMDD-0500HMsettings.7z     (ignore -0500)
@@ -46,10 +46,12 @@ namespace BackUpsInDateNetFramework
                 // ... a string for net use can be generated e.g. \\\\XWIFI02\\USBDisk1_Volume1 for me
                 // args[2] == unc net use password
                 // args[3] == unc net use username
-                
+
                 // e.g. for me:  \\\\XWIFI02\\USBDisk1_Volume1 $password /USER:$user
                 // TODO: look at SecureString options for this scenario - relevant?
 
+                string PRTGcustSenseExtra = Properties.Settings.Default.PRTGcustSenseExtraFolder +
+                    Properties.Settings.Default.PRTGcustSenseExtraFile;
 
                 // expecting filename to look for in args[0]
                 // Date placeholder: YYYYMMDD
@@ -58,12 +60,12 @@ namespace BackUpsInDateNetFramework
                 if (args.Length > 0)
                 {
                     // WARNING: will output password to file, if included in parameters
-                    System.IO.File.WriteAllLines(Properties.Settings.Default.PRTGcustSenseExtra, args);
+                    System.IO.File.WriteAllLines(PRTGcustSenseExtra, args);
                 }
                 else
                 {
                     string[] noArgs = { "No args found" };
-                    System.IO.File.WriteAllLines(Properties.Settings.Default.PRTGcustSenseExtra, noArgs);
+                    System.IO.File.WriteAllLines(PRTGcustSenseExtra, noArgs);
                 }
             }
 
