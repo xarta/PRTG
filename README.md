@@ -106,4 +106,4 @@ Value  |  Description
 
 ![Example custon sensor partial settings page in PRTG](pics/20170712-example-PRTG-sensor-YYYYMMDDhmdata.7z.png)
 
- 
+ ![Example custon sensor partial settings page in PRTG](pics/20170712-example-PRTG-sensor-YYYYMMDDhmdata.7z-overview-screen.png)
