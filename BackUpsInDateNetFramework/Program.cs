@@ -119,10 +119,11 @@ namespace BackUpsInDateNetFramework
             Console.WriteLine($"{filesize}:{msg}");
             return returnVal;
         }
-
+        /*
         [DllImport("mpr.dll")]
         private static extern int WNetCancelConnection2(string name, int flags,
             bool force);
+        */
     }
 
     public static class MyExtensions
