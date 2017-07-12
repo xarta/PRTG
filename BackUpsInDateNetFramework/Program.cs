@@ -43,11 +43,15 @@ namespace BackUpsInDateNetFramework
                 //      YYYYMMDDhmdata.7z         
 
                 // args[1] == unc path for search folder e.g.       \\XWIFI02\USBDisk1_Volume1  for me
+
+                // * update: escaped unc path not used for the cmd.exe net use ... oops (but maybe 
+                // later for the interop based stuff)
                 // ... a string for net use can be generated e.g. \\\\XWIFI02\\USBDisk1_Volume1 for me
+
                 // args[2] == unc net use password
                 // args[3] == unc net use username
 
-                // e.g. for me:  \\\\XWIFI02\\USBDisk1_Volume1 $password /USER:$user
+                // e.g. for me:  \\\\XWIFI02\\USBDisk1_Volume1 $password /USER:$user *
                 // TODO: look at SecureString options for this scenario - relevant?
 
                 string PRTGcustSenseExtra = Properties.Settings.Default.PRTGcustSenseExtraFolder +
@@ -80,14 +84,14 @@ namespace BackUpsInDateNetFramework
             string uncPath = args[1];
             Uri uncPathUri = new Uri(uncPath);
             string uncPathEsc = uncPath.Replace(@"\", @"\\");
-
+            
             try
             {
                 Process process = new Process();
                 ProcessStartInfo startInfo = new ProcessStartInfo();
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 startInfo.FileName = "cmd.exe";
-                startInfo.Arguments = $"/C net use {uncPathEsc} {args[2]} /USER:{args[3]}";
+                startInfo.Arguments = $"/C net use {uncPath} {args[2]} /USER:{args[3]}";
                 process.StartInfo = startInfo;
                 Process.Start(startInfo);
             }
