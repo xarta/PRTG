@@ -84,7 +84,8 @@ namespace BackUpsInDateNetFramework
             string uncPath = args[1];
             Uri uncPathUri = new Uri(uncPath);
             string uncPathEsc = uncPath.Replace(@"\", @"\\");
-            
+
+            // TODO: look at using this instead: https://gist.github.com/AlanBarber/92db36339a129b94b7dd
             try
             {
                 Process process = new Process();
@@ -121,15 +122,17 @@ namespace BackUpsInDateNetFramework
                 returnVal = 2;
             }
 
-            //WNetCancelConnection2("\\\\XWIFI02\\USBDisk1_Volume1", 0, true);
+            WNetCancelConnection2(uncPathEsc, 0, true);
             Console.WriteLine($"{filesize}:{msg}");
             return returnVal;
         }
-        /*
+
+        // using a bit of code from: https://gist.github.com/AlanBarber/92db36339a129b94b7dd
+        // to close the unc connection (credentials might persist in cache for a little bit I think)
         [DllImport("mpr.dll")]
         private static extern int WNetCancelConnection2(string name, int flags,
             bool force);
-        */
+        
     }
 
     public static class MyExtensions
