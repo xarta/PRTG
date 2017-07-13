@@ -64,7 +64,6 @@ namespace PRTGSensors
 
             string uncPath = args[1];
             Uri uncPathUri = new Uri(uncPath);
-            string uncPathEsc = uncPath.Replace(@"\", @"\\");
             // https://gist.github.com/AlanBarber/92db36339a129b94b7dd
             // I've put class from the gist in a class library:
             // referencing class library project "WinNetConnectUnc"
@@ -90,7 +89,6 @@ namespace PRTGSensors
                 }
                 else
                 {
-                    filesize = 0;
                     msg += $"NOT found! {DateTime.Now.ToString("h: mm tt")}";
                 }
             }
