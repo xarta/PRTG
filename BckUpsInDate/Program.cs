@@ -54,7 +54,7 @@ namespace PRTGSensors
                 }
             }
 
-            // primative sanity check - bail-out early if not enough parameters
+            // primitive sanity check - bail-out early if not enough parameters
             if(args.Length < 4)
             {
                 returnVal = 2;
@@ -67,6 +67,36 @@ namespace PRTGSensors
             Uri uncPathUri = new Uri(uncPath);
             string uncPathEsc = uncPath.Replace(@"\", @"\\");
 
+            // https://gist.github.com/AlanBarber/92db36339a129b94b7dd
+            //var networkPath = @"//server/share";
+            var credentials = new NetworkCredential(args[3], args[2]);
+
+            using (new NetworkConnection(uncPath, credentials))
+            {
+                //var fileList = Directory.GetFiles(uncPath);
+                // ASSUMES this sensor is looking for back-up made in same 24-hour period (earlier)
+                string today = DateTime.Now.ToString("yyyyMMdd");
+                string fileName = args[0].Replace("YYYYMMDD", today);
+                msg = $"Looking for {fileName}: ";
+
+                //TODO: wildcard for times in format -0500 (regex maybe)???
+
+                if (File.Exists($"{uncPathUri.LocalPath}/{fileName}"))
+                {
+                    filesize = new FileInfo($"{uncPathUri.LocalPath}/{fileName}").Length.ToKB();
+                    msg += $"FOUND! {DateTime.Now.ToString("h:mm tt")}";
+                    returnVal = 0;
+                }
+                else
+                {
+                    filesize = 0;
+                    msg += $"NOT found! {DateTime.Now.ToString("h: mm tt")}";
+                    returnVal = 2;
+                }
+
+            }
+
+            /*
             // TODO: look at using this instead: https://gist.github.com/AlanBarber/92db36339a129b94b7dd
             // PRTG monitor / this sensor likely running under SYSTEM ... connect unc resource
             try
@@ -105,7 +135,10 @@ namespace PRTGSensors
                 returnVal = 2;
             }
 
-            WNetCancelConnection2(uncPathEsc, 0, true);
+            */
+
+
+            //WNetCancelConnection2(uncPathEsc, 0, true);
             Console.WriteLine($"{filesize}:{msg}");
             return returnVal;
         }
