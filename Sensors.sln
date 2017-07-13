@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackUpsInDate", "BackUpsInDateNetFramework\BackUpsInDate.csproj", "{B22D7947-64C1-44A3-9327-C82333014BC4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackUpsInDate", "BackUpsInDate\BackUpsInDate.csproj", "{B22D7947-64C1-44A3-9327-C82333014BC4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
