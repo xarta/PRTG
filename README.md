@@ -2,6 +2,7 @@
 My PRTG custom sensors
 
 PRTG:  *see* https://www.paessler.com/
+<br>For the ASP.Net project - see separate README.md in its own folder
 
 ## Purpose
 
