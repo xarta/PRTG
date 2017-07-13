@@ -66,14 +66,11 @@ namespace PRTGSensors
             string uncPath = args[1];
             Uri uncPathUri = new Uri(uncPath);
             string uncPathEsc = uncPath.Replace(@"\", @"\\");
-
             // https://gist.github.com/AlanBarber/92db36339a129b94b7dd
-            //var networkPath = @"//server/share";
             var credentials = new NetworkCredential(args[3], args[2]);
 
             using (new NetworkConnection(uncPath, credentials))
             {
-                //var fileList = Directory.GetFiles(uncPath);
                 // ASSUMES this sensor is looking for back-up made in same 24-hour period (earlier)
                 string today = DateTime.Now.ToString("yyyyMMdd");
                 string fileName = args[0].Replace("YYYYMMDD", today);
@@ -96,59 +93,9 @@ namespace PRTGSensors
 
             }
 
-            /*
-            // TODO: look at using this instead: https://gist.github.com/AlanBarber/92db36339a129b94b7dd
-            // PRTG monitor / this sensor likely running under SYSTEM ... connect unc resource
-            try
-            {
-                Process process = new Process();
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                startInfo.FileName = "cmd.exe";
-                startInfo.Arguments = $"/C net use {uncPath} {args[2]} /USER:{args[3]}";
-                process.StartInfo = startInfo;
-                Process.Start(startInfo);
-            }
-            catch (Exception)
-            {
-                returnVal = 2;
-                throw; // TODO: Custom-Outer-Throw-Message/Inner (existing) exception
-            }
-
-            // ASSUMES this sensor is looking for back-up made in same 24-hour period (earlier)
-            string today = DateTime.Now.ToString("yyyyMMdd");
-            string fileName = args[0].Replace("YYYYMMDD",today);
-            msg = $"Looking for {fileName}: ";
-
-            //TODO: wildcard for times in format -0500 (regex maybe)???
-
-            if (File.Exists($"{uncPathUri.LocalPath}/{fileName}"))
-            {
-                filesize = new FileInfo($"{uncPathUri.LocalPath}/{fileName}").Length.ToKB();
-                msg += $"FOUND! {DateTime.Now.ToString("h:mm tt")}";
-                returnVal = 0;
-            }
-            else
-            {
-                filesize = 0;
-                msg += $"NOT found! {DateTime.Now.ToString("h: mm tt")}";
-                returnVal = 2;
-            }
-
-            */
-
-
-            //WNetCancelConnection2(uncPathEsc, 0, true);
             Console.WriteLine($"{filesize}:{msg}");
             return returnVal;
-        }
-
-        // using a bit of code from: https://gist.github.com/AlanBarber/92db36339a129b94b7dd
-        // to close the unc connection (credentials might persist in cache for a little bit I think)
-        [DllImport("mpr.dll")]
-        private static extern int WNetCancelConnection2(string name, int flags,
-            bool force);
-        
+        } 
     }
 
     public static class MyExtensions
