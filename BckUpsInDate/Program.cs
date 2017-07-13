@@ -65,10 +65,10 @@ namespace PRTGSensors
             string uncPath = args[1];
             Uri uncPathUri = new Uri(uncPath);
             // https://gist.github.com/AlanBarber/92db36339a129b94b7dd
-            // I've put class from the gist in a class library:
+            // I've put the class from the gist in a class library:
             // referencing class library project "WinNetConnectUnc"
             // The class will raise an error on connection failure ...
-            // and if this exe is being called by PRTG, then PRTG
+            // and if this sensor exe is being called by PRTG, then PRTG
             // will capture and display the standard-error
             var credentials = new NetworkCredential(args[3], args[2]);
 
@@ -77,13 +77,25 @@ namespace PRTGSensors
                 // ASSUMES this sensor is looking for back-up made in same 24-hour period (earlier)
                 string today = DateTime.Now.ToString("yyyyMMdd");
                 string fileName = args[0].Replace("YYYYMMDD", today);
+                fileName = fileName.Replace("-HHMM", "*");
+                string path = $"{uncPathUri.LocalPath}/";
+                bool fileNameExists = false;
                 msg = $"Looking for {fileName}: ";
 
-                //TODO: wildcard for times in format -0500 (regex maybe)???
-
-                if (File.Exists($"{uncPathUri.LocalPath}/{fileName}"))
+                if(fileName.Contains("*"))
                 {
-                    filesize = new FileInfo($"{uncPathUri.LocalPath}/{fileName}").Length.ToKB();
+                    string[] files = Directory.GetFiles(uncPathUri.LocalPath, fileName, System.IO.SearchOption.TopDirectoryOnly);
+                    if (files.Length > 0)
+                    {
+                        fileNameExists = true;
+                        fileName = files[0];
+                        path = "";
+                    }
+                }
+
+                if (fileNameExists || File.Exists($"{path}{fileName}"))
+                {
+                    filesize = new FileInfo($"{path}{fileName}").Length.ToKB();
                     msg += $"FOUND! {DateTime.Now.ToString("h:mm tt")}";
                     returnVal = 0;
                 }
