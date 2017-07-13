@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="BackUpsInDateNetFramework.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="PRTGcustSenseExtraFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\SHARE\</Value>
+    </Setting>
+    <Setting Name="PRTGcustSenseExtraFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">prtg_sensor_test.txt</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
