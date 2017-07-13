@@ -84,5 +84,11 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\vendor\WinNetConnectUnc\WinNetConnectUnc.csproj">
+      <Project>{796ba7a6-72fa-4fb5-9a68-fed6d253d6ef}</Project>
+      <Name>WinNetConnectUnc</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

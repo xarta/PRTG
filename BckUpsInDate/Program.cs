@@ -39,8 +39,8 @@ namespace PRTGSensors
             // WARNING: will output password to file, if included in parameters
             if (Directory.Exists(Properties.Settings.Default.PRTGcustSenseExtraFolder))
             {
-                 string PRTGcustSenseExtra = Properties.Settings.Default.PRTGcustSenseExtraFolder +
-                    Properties.Settings.Default.PRTGcustSenseExtraFile;
+                string PRTGcustSenseExtra = Properties.Settings.Default.PRTGcustSenseExtraFolder +
+                   Properties.Settings.Default.PRTGcustSenseExtraFile;
 
                 // test/debug: check args - output to file
                 if (args.Length > 0)
@@ -55,7 +55,7 @@ namespace PRTGSensors
             }
 
             // primitive sanity check - bail-out early if not enough parameters
-            if(args.Length < 4)
+            if (args.Length < 4)
             {
                 returnVal = 2;
                 msg = "Expected sensor parameters not found. e.g. filename, unc-path, password, username";
@@ -67,6 +67,8 @@ namespace PRTGSensors
             Uri uncPathUri = new Uri(uncPath);
             string uncPathEsc = uncPath.Replace(@"\", @"\\");
             // https://gist.github.com/AlanBarber/92db36339a129b94b7dd
+            // I've put class from the gist in a class library:
+            // referencing class library project "WinNetConnectUnc"
             var credentials = new NetworkCredential(args[3], args[2]);
 
             using (new NetworkConnection(uncPath, credentials))
@@ -90,12 +92,11 @@ namespace PRTGSensors
                     msg += $"NOT found! {DateTime.Now.ToString("h: mm tt")}";
                     returnVal = 2;
                 }
-
             }
 
             Console.WriteLine($"{filesize}:{msg}");
             return returnVal;
-        } 
+        }
     }
 
     public static class MyExtensions
@@ -103,124 +104,6 @@ namespace PRTGSensors
         public static Int64 ToKB(this Int64 byteValue)
         {
             return (Int64)Math.Floor(((double)byteValue / 1024));
-        }
-    }
-
-
-    /**
-     * https://gist.github.com/AlanBarber/92db36339a129b94b7dd
-     * Was looking at Git subtrees then realised this was a gist
-     * rather than a repository.  Thought about having a shared library
-     * and a vendor folder etc. but in the end, for these tiny "sensors"
-     * and this one class, and for my needs, it seems easier to just
-     * duplicate this class and add it directly into my Program.cs
-     * file.  I think sometimes doing things "right" just makes life
-     * too complicated.  If Windows changes such that this doesn't work
-     * anymore for me, then I might have to think about other things anyway
-     * and a bit of copying and pasting won't take too long in this case,
-     * and it will be easier to "think about" when all the eggs are in one
-     * immediately apparent, obvious, visible, basket.
-     */
-    public class NetworkConnection : IDisposable
-    {
-        readonly string _networkName;
-
-        public NetworkConnection(string networkName, NetworkCredential credentials)
-        {
-            _networkName = networkName;
-
-            var netResource = new NetResource
-            {
-                Scope = ResourceScope.GlobalNetwork,
-                ResourceType = ResourceType.Disk,
-                DisplayType = ResourceDisplaytype.Share,
-                RemoteName = networkName
-            };
-
-            var userName = string.IsNullOrEmpty(credentials.Domain)
-                ? credentials.UserName
-                : string.Format(@"{0}\{1}", credentials.Domain, credentials.UserName);
-
-            var result = WNetAddConnection2(
-                netResource,
-                credentials.Password,
-                userName,
-                0);
-
-            if (result != 0)
-            {
-                throw new Win32Exception(result, "Error connecting to remote share");
-            }
-        }
-
-        ~NetworkConnection()
-        {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            WNetCancelConnection2(_networkName, 0, true);
-        }
-
-        [DllImport("mpr.dll")]
-        private static extern int WNetAddConnection2(NetResource netResource,
-            string password, string username, int flags);
-
-        [DllImport("mpr.dll")]
-        private static extern int WNetCancelConnection2(string name, int flags,
-            bool force);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public class NetResource
-        {
-            public ResourceScope Scope;
-            public ResourceType ResourceType;
-            public ResourceDisplaytype DisplayType;
-            public int Usage;
-            public string LocalName;
-            public string RemoteName;
-            public string Comment;
-            public string Provider;
-        }
-
-        public enum ResourceScope : int
-        {
-            Connected = 1,
-            GlobalNetwork,
-            Remembered,
-            Recent,
-            Context
-        };
-
-        public enum ResourceType : int
-        {
-            Any = 0,
-            Disk = 1,
-            Print = 2,
-            Reserved = 8,
-        }
-
-        public enum ResourceDisplaytype : int
-        {
-            Generic = 0x0,
-            Domain = 0x01,
-            Server = 0x02,
-            Share = 0x03,
-            File = 0x04,
-            Group = 0x05,
-            Network = 0x06,
-            Root = 0x07,
-            Shareadmin = 0x08,
-            Directory = 0x09,
-            Tree = 0x0a,
-            Ndscontainer = 0x0b
         }
     }
 }
