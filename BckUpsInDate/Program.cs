@@ -18,7 +18,7 @@ namespace PRTGSensors
     {
         static int Main(string[] args)
         {
-            int returnVal = 0;      // 0 = OK, 2 = ERROR
+            int returnVal = 2;      // 0 = OK, 2 = ERROR
             Int64 filesize = 0;     // in KB
             string msg = "none";    // Use "file-found", "file-missing" etc.
 
@@ -57,7 +57,6 @@ namespace PRTGSensors
             // primitive sanity check - bail-out early if not enough parameters
             if (args.Length < 4)
             {
-                returnVal = 2;
                 msg = "Expected sensor parameters not found. e.g. filename, unc-path, password, username";
                 Console.WriteLine($"{filesize}:{msg}");
                 return returnVal;
@@ -69,6 +68,9 @@ namespace PRTGSensors
             // https://gist.github.com/AlanBarber/92db36339a129b94b7dd
             // I've put class from the gist in a class library:
             // referencing class library project "WinNetConnectUnc"
+            // The class will raise an error on connection failure ...
+            // and if this exe is being called by PRTG, then PRTG
+            // will capture and display the standard-error
             var credentials = new NetworkCredential(args[3], args[2]);
 
             using (new NetworkConnection(uncPath, credentials))
@@ -90,7 +92,6 @@ namespace PRTGSensors
                 {
                     filesize = 0;
                     msg += $"NOT found! {DateTime.Now.ToString("h: mm tt")}";
-                    returnVal = 2;
                 }
             }
 
